@@ -5,6 +5,7 @@
 export DOMAIN=${DOMAIN:="$(curl ipinfo.io/ip).nip.io"}
 export USERNAME=${USERNAME:="$(whoami)"}
 export PASSWD=${PASSWD:="$(echo $PASSWORD | openssl passwd -stdin -apr1)"}export VERSION=${VERSION:="v3.9.0"}
+export VERSION=${VERSION:="v3.9.0"}
 
 
 export SCRIPT_REPO=${SCRIPT_REPO:="https://raw.githubusercontent.com/gshipley/installcentos/master"}
