@@ -4,7 +4,7 @@
 
 export DOMAIN=${DOMAIN:="$(curl ipinfo.io/ip).nip.io"}
 export USERNAME=${USERNAME:="$(whoami)"}
-export PASSWORD=${PASSWORD:=password}
+export PASSWD=${PASSWD:="$(echo $PASSWORD | openssl passwd -stdin -apr1)"}
 export VERSION=${VERSION:="v3.9.0"}
 
 
@@ -17,7 +17,7 @@ echo "******"
 echo "* Your domain is $DOMAIN "
 echo "* Your IP is $IP "
 echo "* Your username is $USERNAME "
-echo "* Your password is $PASSWORD "
+echo "* Your password is $PASSWD "
 echo "* OpenShift version: $VERSION "
 echo "******"
 
@@ -113,10 +113,11 @@ if [ ! -z "${HTTPS_PROXY:-${https_proxy:-${HTTP_PROXY:-${http_proxy}}}}" ]; then
 	echo "openshift_no_proxy=\"${__no_proxy}\"" >> inventory.ini
 fi
 
+echo "openshift_master_htpasswd_users={'${USERNAME}': '${PASSWD}'}" >> inventory.ini
+
 ansible-playbook -i inventory.ini openshift-ansible/playbooks/prerequisites.yml
 ansible-playbook -i inventory.ini openshift-ansible/playbooks/deploy_cluster.yml
 
-htpasswd -b /etc/origin/master/htpasswd ${USERNAME} ${PASSWORD}
 oc adm policy add-cluster-role-to-user cluster-admin ${USERNAME}
 
 systemctl restart origin-master-api
@@ -125,11 +126,11 @@ echo "******"
 
 echo "* Your console is https://console.$DOMAIN:$API_PORT"
 echo "* Your username is $USERNAME "
-echo "* Your password is $PASSWORD "
+echo "* Your password is $PASSWD "
 echo "*"
 echo "* Login using:"
 echo "*"
-echo "$ oc login -u ${USERNAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT/"
+echo "$ oc login -u ${USERNAME} -p ${PASSWD} https://console.$DOMAIN:$API_PORT/"
 echo "******"
 
-oc login -u ${USERNAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT/
+oc login -u ${USERNAME} -p ${PASSWD} https://console.$DOMAIN:$API_PORT/
