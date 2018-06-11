@@ -22,7 +22,7 @@ echo "* OpenShift version: $VERSION "
 echo "******"
 
 # install updates
-yum install -y update
+yum update -y
 
 # install the following base packages
 yum install -y  wget git zile nano net-tools docker-1.13.1\
