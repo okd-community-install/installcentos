@@ -2,9 +2,9 @@
 
 ## see: https://youtu.be/aqXSbDZggK4
 
-export DOMAIN=${DOMAIN:="$(curl ipinfo.io/ip).nip.io"}
+export DOMAIN=${DOMAIN:="$(hostname)"}
 export USERNAME=${USERNAME:="$(whoami)"}
-export PASSWORD=${PASSWORD:=password}
+export PASSWORD=${PASSWORD:=admin}
 export VERSION=${VERSION:="v3.9.0"}
 
 
@@ -34,7 +34,9 @@ yum install -y  wget git zile nano net-tools docker-1.13.1\
 				java-1.8.0-openjdk-headless "@Development Tools"
 
 #install epel
-yum -y install epel-release
+wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -O /tmp/epel-release-latest-7.noarch.rpm
+rpm -ivh /tmp/epel-release-latest-7.noarch.rpm
+#yum -y install epel-release
 
 # Disable the EPEL repository globally so that is not accidentally used during later steps of the installation
 sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
@@ -55,7 +57,7 @@ cd openshift-ansible && git fetch && git checkout release-3.9 && cd ..
 cat <<EOD > /etc/hosts
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-${IP}		$(hostname) console console.${DOMAIN}  
+${IP}		$(hostname)
 EOD
 
 if [ -z $DISK ]; then 
@@ -97,7 +99,8 @@ if [ "$memory" -lt "8388608" ]; then
 	export LOGGING="False"
 fi
 
-curl -o inventory.download $SCRIPT_REPO/inventory.ini
+#curl -o inventory.download $SCRIPT_REPO/inventory.ini
+cp inventory.download inventory.ini
 envsubst < inventory.download > inventory.ini
 
 # add proxy in inventory.ini if proxy variables are set
@@ -123,13 +126,13 @@ systemctl restart origin-master-api
 
 echo "******"
 
-echo "* Your console is https://console.$DOMAIN:$API_PORT"
+echo "* Your console is https://$DOMAIN:$API_PORT"
 echo "* Your username is $USERNAME "
 echo "* Your password is $PASSWORD "
 echo "*"
 echo "* Login using:"
 echo "*"
-echo "$ oc login -u ${USERNAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT/"
+echo "$ oc login -u ${USERNAME} -p ${PASSWORD} https://$DOMAIN:$API_PORT/"
 echo "******"
 
-oc login -u ${USERNAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT/
+oc login -u ${USERNAME} -p ${PASSWORD} https://$DOMAIN:$API_PORT/
