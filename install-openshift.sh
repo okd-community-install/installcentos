@@ -3,9 +3,9 @@
 ## see: https://youtu.be/aqXSbDZggK4
 
 export DOMAIN=${DOMAIN:="$(hostname)"}
-export USERNAME=${USERNAME:="$(whoami)"}
+export USERNAME=${USERNAME:="admin"}
 export PASSWORD=${PASSWORD:=admin}
-export VERSION=${VERSION:="v3.9.0"}
+export VERSION=${VERSION:="3.9.0"}
 
 
 export SCRIPT_REPO=${SCRIPT_REPO:="https://raw.githubusercontent.com/gshipley/installcentos/master"}
@@ -14,7 +14,7 @@ export IP=${IP:="$(ip route get 8.8.8.8 | awk '{print $NF; exit}')"}
 export API_PORT=${API_PORT:="8443"}
 
 echo "******"
-echo "* Your domain is $DOMAIN "
+echo "* Your hostname is $DOMAIN "
 echo "* Your IP is $IP "
 echo "* Your username is $USERNAME "
 echo "* Your password is $PASSWORD "
@@ -100,7 +100,7 @@ if [ "$memory" -lt "8388608" ]; then
 fi
 
 #curl -o inventory.download $SCRIPT_REPO/inventory.ini
-cp inventory.download inventory.ini
+cp inventory.ini inventory.download
 envsubst < inventory.download > inventory.ini
 
 # add proxy in inventory.ini if proxy variables are set
