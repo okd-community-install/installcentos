@@ -8,13 +8,13 @@ Install RedHat OpenShift Origin in your development box.
 
 ```
 # Domain name to access the cluster
-$ export DOMAIN=<public ip addres>.nip.io 
+$ export DOMAIN=$(hostname)
 
 # User created after installation
-$ export USERNAME=<current user name>
+$ export USERNAME=admin
 
 # Password for the user
-$ export PASSWORD=password
+$ export PASSWORD=admin
 ```
 
 3. Define optional variables for the installation process
