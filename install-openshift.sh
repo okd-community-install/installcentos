@@ -4,7 +4,7 @@
 
 ## Default variables to use
 export INTERACTIVE=${INTERACTIVE:="true"}
-export PVS=${INTERACTIVE:="true"}
+export PVS=${PVS:="true"}
 export DOMAIN=${DOMAIN:="$(curl -s ipinfo.io/ip).nip.io"}
 export USERNAME=${USERNAME:="$(whoami)"}
 export PASSWORD=${PASSWORD:=password}
@@ -44,35 +44,40 @@ if [ "$INTERACTIVE" = "true" ]; then
 		export API_PORT="$choice";
 	fi 
 
-	echo
+	read -rp "Create PVs: ($PVS): " choice;
+	if [ "$choice" != "" ] ; then
+		export PVS="$choice";
+	fi 
 
+	echo
 fi
 
 echo "******"
-echo "* Your domain is $DOMAIN "
-echo "* Your IP is $IP "
-echo "* Your username is $USERNAME "
-echo "* Your password is $PASSWORD "
-echo "* OpenShift version: $VERSION "
+echo "* Your domain is $DOMAIN"
+echo "* Your IP is $IP"
+echo "* Your username is $USERNAME"
+echo "* Your password is $PASSWORD"
+echo "* OpenShift version: $VERSION"
+echo "* Create PVs: $PVS"
 echo "******"
 
 # install updates
 yum update -y
 
 # install the following base packages
-yum install -y  wget git zile nano net-tools docker-1.13.1\
+yum install -y  wget git yum-utils nano net-tools docker-1.13.1\
 				bind-utils iptables-services \
 				bridge-utils bash-completion \
 				kexec-tools sos psacct openssl-devel \
 				httpd-tools NetworkManager \
-				python-cryptography python2-pip python-devel  python-passlib \
+				python-cryptography python-devel  python-passlib \
 				java-1.8.0-openjdk-headless "@Development Tools"
 
 #install epel
 yum -y install epel-release
 
 # Disable the EPEL repository globally so that is not accidentally used during later steps of the installation
-sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
+yum-config-manager --disable epel
 
 systemctl | grep "NetworkManager.*running" 
 if [ $? -eq 1 ]; then
@@ -80,17 +85,17 @@ if [ $? -eq 1 ]; then
 	systemctl enable NetworkManager
 fi
 
-# install the packages for Ansible
-yum -y --enablerepo=epel install ansible pyOpenSSL
+# install the packages for Ansible, zile, python2-pip from epel repo
+yum -y --enablerepo=epel install ansible pyOpenSSL zile python2-pip
 
 [ ! -d openshift-ansible ] && git clone https://github.com/openshift/openshift-ansible.git
 
-cd openshift-ansible && git fetch && git checkout release-3.11 && cd ..
+cd openshift-ansible && git fetch && git checkout release-$VERSION && cd ..
 
 cat <<EOD > /etc/hosts
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-${IP}		$(hostname) console console.${DOMAIN}  
+${IP}		$(hostname -f) console console.${DOMAIN}  
 EOD
 
 if [ -z $DISK ]; then 
@@ -114,23 +119,25 @@ systemctl restart docker
 systemctl enable docker
 
 if [ ! -f ~/.ssh/id_rsa ]; then
-	ssh-keygen -q -f ~/.ssh/id_rsa -N ""
+	ssh-keygen -t rsa -b 2048 -q -f ~/.ssh/id_rsa -N ""
 	cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 	ssh -o StrictHostKeyChecking=no root@$IP "pwd" < /dev/null
 fi
 
-export METRICS="True"
-export LOGGING="True"
+METRICS="True"
+LOGGING="True"
 
 memory=$(cat /proc/meminfo | grep MemTotal | sed "s/MemTotal:[ ]*\([0-9]*\) kB/\1/")
 
 if [ "$memory" -lt "4194304" ]; then
-	export METRICS="False"
+	METRICS="False"
 fi
 
 if [ "$memory" -lt "8388608" ]; then
-	export LOGGING="False"
+	LOGGING="False"
 fi
+
+export METRICS LOGGING
 
 curl -o inventory.download $SCRIPT_REPO/inventory.ini
 envsubst < inventory.download > inventory.ini
@@ -165,8 +172,8 @@ if [ "$PVS" = "true" ]; then
 		chcon -Rt svirt_sandbox_file_t /mnt/data/$DIRNAME
 		chmod 777 /mnt/data/$DIRNAME
 		
-		sed "s/name: vol/name: vol$i/g" vol.yaml > oc_vol.yaml
-		sed -i "s/path: \/mnt\/data\/vol/path: \/mnt\/data\/vol$i/g" oc_vol.yaml
+		sed "s%name: vol%name: vol$i%g" vol.yaml > oc_vol.yaml
+		sed -i "s%path: /mnt/data/vol%path: /mnt/data/vol$i%g" oc_vol.yaml
 		oc create -f oc_vol.yaml
 		echo "created volume $i"
 	done
@@ -175,8 +182,8 @@ fi
 
 echo "******"
 echo "* Your console is https://console.$DOMAIN:$API_PORT"
-echo "* Your username is $USERNAME "
-echo "* Your password is $PASSWORD "
+echo "* Your username is $USERNAME"
+echo "* Your password is $PASSWORD"
 echo "*"
 echo "* Login using:"
 echo "*"
