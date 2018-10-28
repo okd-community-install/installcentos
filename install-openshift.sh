@@ -44,6 +44,14 @@ if [ "$INTERACTIVE" = "true" ]; then
 		export API_PORT="$choice";
 	fi 
 
+	echo "Do you wish to enable HTTPS with Let's Encrypt?"
+	select yn in "Yes" "No"
+	case $yn in
+		Yes ) export LETSENCRYPT=true; break;;
+		No ) export LETSENCRYPT=false; break;;
+		* ) echo "Please select Yes or No.";;
+	esac
+	
 	echo
 
 fi
@@ -54,6 +62,7 @@ echo "* Your IP is $IP "
 echo "* Your username is $USERNAME "
 echo "* Your password is $PASSWORD "
 echo "* OpenShift version: $VERSION "
+echo "* Enable HTTPS with Let's Encrypt: $LETSENCRYPT "
 echo "******"
 
 # install updates
@@ -149,6 +158,49 @@ if [ ! -z "${HTTPS_PROXY:-${https_proxy:-${HTTP_PROXY:-${http_proxy}}}}" ]; then
 		__no_proxy="${IP},.${DOMAIN}"
 	fi
 	echo "openshift_no_proxy=\"${__no_proxy}\"" >> inventory.ini
+fi
+
+if [ "$LETSENCRYPT" = true ] ; then
+	# Install CertBot
+	yum install -y certbot
+
+	# Configure Let's Encrypt certificate
+	certbot certonly --manual \
+					--preferred-challenges dns \
+					--email $MAIL \
+					--server https://acme-v02.api.letsencrypt.org/directory \
+					--agree-tos \
+					-d $DOMAIN \
+					-d *.$DOMAIN \
+					-d *.apps.$DOMAIN
+	
+	## Modify inventory.ini 
+	# Declare usage of Custom Certificate
+	# Configure Custom Certificates for the Web Console or CLI => Doesn't Work for CLI
+	# Configure a Custom Master Host Certificate
+	# Configure a Custom Wildcard Certificate for the Default Router
+	# Configure a Custom Certificate for the Image Registry
+	## See here for more explanation: https://docs.okd.io/latest/install_config/certificate_customization.html
+	cat <<EOT >> inventory.ini
+	
+	openshift_master_overwrite_named_certificates=true
+	
+	openshift_master_cluster_hostname=console-internal.${DOMAIN}
+	openshift_master_cluster_public_hostname=console.${DOMAIN}
+	
+	openshift_master_named_certificates=[{"certfile": "/etc/letsencrypt/live/${DOMAIN}/cert.pem", "keyfile": "/etc/letsencrypt/live/${DOMAIN}/privkey.pem", "names": ["console.${DOMAIN}"]}]
+	
+	openshift_hosted_router_certificate={"certfile": "/etc/letsencrypt/live/${DOMAIN}/cert.pem", "keyfile": "/etc/letsencrypt/live/${DOMAIN}/privkey.pem", "cafile": "/etc/letsencrypt/live/${DOMAIN}/chain.pem"}
+	
+	openshift_hosted_registry_routehost=registry.apps.${DOMAIN}
+	openshift_hosted_registry_routecertificates={"certfile": "/etc/letsencrypt/live/${DOMAIN}/cert.pem", "keyfile": "/etc/letsencrypt/live/${DOMAIN}/privkey.pem", "cafile": "/etc/letsencrypt/live/${DOMAIN}/chain.pem"}
+	openshift_hosted_registry_routetermination=reencrypt
+EOT
+	
+	# Add Cron Task to renew certificate
+	echo "@weekly  certbot renew --pre-hook=\"oc scale --replicas=0 dc router\" --post-hook=\"oc scale --replicas=1 dc router\"" > certbotcron
+	crontab certbotcron
+	rm certbotcron
 fi
 
 mkdir -p /etc/origin/master/
