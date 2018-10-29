@@ -179,7 +179,7 @@ fi
 # Let's Encrypt setup
 if [ "$LETSENCRYPT" = true ] ; then
 	# Install CertBot
-	yum install -y certbot
+	yum install --enablerepo=epel -y certbot
 
 	# Configure Let's Encrypt certificate
 	certbot certonly --manual \
