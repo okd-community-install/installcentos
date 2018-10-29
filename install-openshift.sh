@@ -50,12 +50,13 @@ if [ "$INTERACTIVE" = "true" ]; then
 	echo "Warnings: " 
 	echo "  Let's Encrypt only works if the IP is using publicly accessible IP and custom certificates."
 	echo "  This feature doesn't work with OpenShift CLI for now."
-	select yn in "Yes" "No"
-	case $yn in
-		Yes ) export LETSENCRYPT=true; break;;
-		No ) export LETSENCRYPT=false; break;;
-		* ) echo "Please select Yes or No.";;
-	esac
+	select yn in "Yes" "No"; do
+		case $yn in
+			Yes) export LETSENCRYPT=true; break;;
+			No) export LETSENCRYPT=false; break;;
+			*) echo "Please select Yes or No.";;
+		esac
+	done
 	
 	if [ "$LETSENCRYPT" = true ] ; then
 		read -rp "Email(required for Let's Encrypt): ($MAIL): " choice;
