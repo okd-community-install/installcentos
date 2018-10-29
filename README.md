@@ -4,6 +4,10 @@ This repository is a set of scripts that will allow you easily install the lates
 
 **Please do use a clean CentOS system, the script installs all necesary tools and packages including Ansible, container runtime, etc.**
 
+> **Warning about Let's Encrypt setup available on this project:**
+> Let's Encrypt only works if the IP is using publicly accessible IP and custom certificates."
+> This feature doesn't work with OpenShift CLI for now.
+
 ## Installation
 
 1. Create a VM as explained in https://www.youtube.com/watch?v=ZkFIozGY0IA (this video) by Grant Shipley
