@@ -158,7 +158,7 @@ ansible-playbook -i inventory.ini openshift-ansible/playbooks/prerequisites.yml
 ansible-playbook -i inventory.ini openshift-ansible/playbooks/deploy_cluster.yml
 
 htpasswd -b /etc/origin/master/htpasswd ${USERNAME} ${PASSWORD}
-oc adm policy add-cluster-role-to-user cluster-admin ${USERNAME}
+oc adm policy add-cluster-role-to-user cluster-admin ${USERNAME} --config=/etc/origin/master/admin.kubeconfig
 
 if [ "$PVS" = "true" ]; then
 
@@ -173,7 +173,7 @@ if [ "$PVS" = "true" ]; then
 		
 		sed "s/name: vol/name: vol$i/g" vol.yaml > oc_vol.yaml
 		sed -i "s/path: \/mnt\/data\/vol/path: \/mnt\/data\/vol$i/g" oc_vol.yaml
-		oc create -f oc_vol.yaml
+		oc create -f oc_vol.yaml --config=/etc/origin/master/admin.kubeconfig
 		echo "created volume $i"
 	done
 	rm oc_vol.yaml
