@@ -73,3 +73,11 @@ and then run `start.sh` to start the provisioning. Once the ssh is connected to 
 script will atatch to the `tmux` session running Ansible installer.
 
 To destroy the infrastructure, run the `stop.sh` script.
+
+## Uninstall
+
+If needed OpenShift can be removed by running the uninstall adhoc ansible-playbook.
+
+```
+$ ansible-playbook -i inventory.ini openshift-ansible/playbooks/adhoc/uninstall.yml
+```
