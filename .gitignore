@@ -4,3 +4,4 @@ validate/.terraform
 validate/terraform.*
 validate/ip.tmp
 openshift-ansible
+.history
