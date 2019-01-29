@@ -4,8 +4,8 @@ yum -y update
 
 yum -y install tmux
 
-tmux new-session -d -s installcentos
+tmux new-session -d -s openshift-install
 
 chmod +x /root/run.sh
 
-tmux send -t installcentos /root/run.sh ENTER
+tmux send -t openshift-install /root/run.sh ENTER
