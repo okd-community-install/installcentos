@@ -205,12 +205,12 @@ if [ "$LETSENCRYPT" = true ] ; then
 	openshift_master_cluster_hostname=console-internal.${DOMAIN}
 	openshift_master_cluster_public_hostname=console.${DOMAIN}
 	
-	openshift_master_named_certificates=[{"certfile": "/etc/letsencrypt/live/${DOMAIN}/cert.pem", "keyfile": "/etc/letsencrypt/live/${DOMAIN}/privkey.pem", "names": ["console.${DOMAIN}"]}]
+	openshift_master_named_certificates=[{"certfile": "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem", "keyfile": "/etc/letsencrypt/live/${DOMAIN}/privkey.pem", "cafile": "/etc/letsencrypt/live/${DOMAIN}/chain.pem", "names": ["console.${DOMAIN}"]}]
 	
-	openshift_hosted_router_certificate={"certfile": "/etc/letsencrypt/live/${DOMAIN}/cert.pem", "keyfile": "/etc/letsencrypt/live/${DOMAIN}/privkey.pem", "cafile": "/etc/letsencrypt/live/${DOMAIN}/chain.pem"}
+	openshift_hosted_router_certificate={"certfile": "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem", "keyfile": "/etc/letsencrypt/live/${DOMAIN}/privkey.pem", "cafile": "/etc/letsencrypt/live/${DOMAIN}/chain.pem"}
 	
 	openshift_hosted_registry_routehost=registry.apps.${DOMAIN}
-	openshift_hosted_registry_routecertificates={"certfile": "/etc/letsencrypt/live/${DOMAIN}/cert.pem", "keyfile": "/etc/letsencrypt/live/${DOMAIN}/privkey.pem", "cafile": "/etc/letsencrypt/live/${DOMAIN}/chain.pem"}
+	openshift_hosted_registry_routecertificates={"certfile": "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem", "keyfile": "/etc/letsencrypt/live/${DOMAIN}/privkey.pem", "cafile": "/etc/letsencrypt/live/${DOMAIN}/chain.pem"}
 	openshift_hosted_registry_routetermination=reencrypt
 EOT
 	
