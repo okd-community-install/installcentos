@@ -147,8 +147,8 @@ if [ ! -f ~/.ssh/id_rsa ]; then
 	ssh -o StrictHostKeyChecking=no root@$IP "pwd" < /dev/null
 fi
 
-export METRICS="True"
-export LOGGING="True"
+export METRICS=${METRICS:="True"}
+export LOGGING=${LOGGING:="True"}
 
 memory=$(cat /proc/meminfo | grep MemTotal | sed "s/MemTotal:[ ]*\([0-9]*\) kB/\1/")
 
