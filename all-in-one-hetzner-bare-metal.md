@@ -13,12 +13,28 @@ https://github.com/RedHat-EMEA-SSA-Team/hetzner-ocp#install-instructions
 
 The simplest way of partitioning is:
 ´´´
+DRIVE1 /dev/sda
+DRIVE2 /dev/sdb
+SWRAID 1
+SWRAIDLEVEL 1
+BOOTLOADER grub
+HOSTNAME CentOS-76-64-minimal
+PART /boot ext3     512M
+PART lvm   vg0       all
 
+LV vg0   root   /       ext4     200G
+LV vg0   swap   swap    swap       5G
+LV vg0   tmp    /tmp    ext4      10G
+LV vg0   home   /home   ext4      40G
+
+
+IMAGE /root/.oldroot/nfs/install/../images/CentOS-76-64-minimal.tar.gz
 ´´´
 
+for a box 2*2GB. If the imgage is not avalilible just check for the next version of CentOS.
 
 
-Fst tinh to to is enable SELinux, as it comes disabled:
+After installting the the image the first to to is enable SELinux, as it comes disabled:
 
 ´´´
 vi /etc/selinux/config
@@ -29,18 +45,33 @@ getenfore
 
 
 yum -y install screen git
+
+
 ´´´
 
 then follow:
 
-But skip 1.
 
-1. Create a VM as explained in https://www.youtube.com/watch?v=ZkFIozGY0IA (this video) by Grant Shipley
 
-2. Clone this repo
+Please read the section upfront but shlighly change some commands
+
+https://github.com/gshipley/installcentos
+
+Skip 2.
+
+and clone with:
 
 ```
-git clone https://github.com/gshipley/installcentos.git
+export GIT_BASE_DIR=https://github.com/wrenkredhat/installcentos
+git clone $GIT_BASE_DIR
+```
+Then Export the follwing variables; these will take control over the
+process os installation where relevant:
+
+```
+export SCRIPT_REPO=$GIT_BASE_DIR/blob/master
+export METRICS="False"
+export LOGGING="False"
 ```
 
 3. Execute the installation script
@@ -50,55 +81,6 @@ cd installcentos
 ./install-openshift.sh
 ```
 
-## Automation
-1. Define mandatory variables for the installation process
+While the installation is running you might want to configure the FireWall:
 
-```
-# Domain name to access the cluster
-$ export DOMAIN=<public ip address>.nip.io
-
-# User created after installation
-$ export USERNAME=<current user name>
-
-# Password for the user
-$ export PASSWORD=password
-```
-
-2. Define optional variables for the installation process
-
-```
-# Instead of using loopback, setup DeviceMapper on this disk.
-# !! All data on the disk will be wiped out !!
-$ export DISK="/dev/sda"
-```
-
-3. Run the automagic installation script as root with the environment variable in place:
-
-```
-curl https://raw.githubusercontent.com/gshipley/installcentos/master/install-openshift.sh | INTERACTIVE=false /bin/bash
-```
-
-## Development
-
-For development it's possible to switch the script repo
-
-```
-# Change location of source repository
-$ export SCRIPT_REPO="https://raw.githubusercontent.com/gshipley/installcentos/master"
-$ curl $SCRIPT_REPO/install-openshift.sh | /bin/bash
-```
-
-## Testing
-
-The script is tested using the tooling in the `validate` directory.
-
-To use the tooling, it's required to create file `validate/env.sh` with the DigitalOcean API key
-
-```
-export DIGITALOCEAN_TOKEN=""
-```
-
-and then run `start.sh` to start the provisioning. Once the ssh is connected to the server, the
-script will atatch to the `tmux` session running Ansible installer.
-
-To destroy the infrastructure, run the `stop.sh` script.
+<link>
