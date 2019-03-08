@@ -62,7 +62,9 @@ Skip 2.
 and clone with:
 
 ```
-export GIT_BASE_DIR=https://github.com/wrenkredhat/installcentos
+#Use your Git-Fork or use:
+export GIT_BASE_DIR=https://github.com/gshipley/installcentos
+
 git clone $GIT_BASE_DIR
 ```
 Then Export the follwing variables; these will take control over the
@@ -83,4 +85,4 @@ cd installcentos
 
 While the installation is running you might want to configure the FireWall:
 
-<link>
+https://github.com/RedHat-EMEA-SSA-Team/hetzner-ocp#firewall
