@@ -160,7 +160,8 @@ if [ "$memory" -lt "16777216" ]; then
 	export LOGGING="False"
 fi
 
-curl -o inventory.download $SCRIPT_REPO/inventory.ini
+#curl -o inventory.download $SCRIPT_REPO/inventory.ini
+cp inventory.ini inventory.download
 envsubst < inventory.download > inventory.ini
 
 # add proxy in inventory.ini if proxy variables are set
