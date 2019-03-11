@@ -19,7 +19,7 @@ https://github.com/mpeterson/rdo-openshift-tools
 
 # Install on Hetzner-bare-metal Server
 
-In oder to have a more openshift-a-like environment there is now a manual of how to run this on a bare-metal-box
+In oder to have a more openshift-a-like environment there is now a manual of how to run this on a bare-metal-box.
 Please check: [all-in-one-hetzner-bare-metal](all-in-one-hetzner-bare-metal.md)
 
 ## Installation
