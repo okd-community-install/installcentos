@@ -64,20 +64,24 @@ Please read the section upfront but shlighly change some commands
 
 https://github.com/gshipley/installcentos
 
-Skip 2.
+Skip strep 2.
 
 and clone with:
 
 ```
 #Use your Git-Fork or use:
-export GIT_BASE_DIR=https://github.com/gshipley/installcentos
-
-git clone $GIT_BASE_DIR
+export GIT_USER=gshipley
+git clone https://github.com/${GIT_USER}/installcentos
 ```
 Then Export the follwing variables; these will take control over the
 process os installation where relevant:
 
+
+
 ```
+### Optional: export SCRIPT_REPO=browse to your **RAW** fork of rep:
+### export SCRIPT_REPO=https://raw.githubusercontent.com/${GIT_USER}/installcentos/master 
+
 export METRICS="False"
 export LOGGING="False"
 ```
