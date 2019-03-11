@@ -78,7 +78,6 @@ Then Export the follwing variables; these will take control over the
 process os installation where relevant:
 
 ```
-export SCRIPT_REPO=$GIT_BASE_DIR/blob/master
 export METRICS="False"
 export LOGGING="False"
 ```
@@ -90,7 +89,7 @@ cd installcentos
 ./install-openshift.sh
 ```
 
-# Secure System with Firewallh
+# Secure System with Firewall
 
 While the installation is running you might want to configure the FireWall:
 
