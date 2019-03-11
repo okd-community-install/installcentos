@@ -1,5 +1,5 @@
 
-# ODK bare Metal Deploymnet
+# ODK bare metal deploymnet
 
 This  manual describes a way of how to run the installation on a bare metal hetzner box.
 
