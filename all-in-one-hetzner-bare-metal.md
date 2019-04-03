@@ -81,7 +81,7 @@ and clone with:
 ```
 # I recommend use screen program to prevent session termination once install script executed.
 $ screen
-#Use your Git-Fork or use:
+# Use your Git-Fork or use:
 $ export GIT_USER=gshipley
 $ git clone https://github.com/${GIT_USER}/installcentos
 ```
