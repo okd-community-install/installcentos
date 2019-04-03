@@ -79,7 +79,7 @@ Skip step 2.
 and clone with:
 
 ```
-# I recommend use screen program to prevent session termination or connection issues once install script executed.
+# I recommend use screen program to prevent session termination once install script executed.
 $ screen
 #Use your Git-Fork or use:
 $ export GIT_USER=gshipley
