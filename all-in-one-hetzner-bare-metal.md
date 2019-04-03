@@ -54,7 +54,7 @@ $ vi /etc/selinux/config
 SELINUX=enforcing
 
 # Restart the server.
-$ sync; reboot now
+$ sync; reboot
 
 # Check SELinux status.
 $ getenforce
