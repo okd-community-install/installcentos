@@ -41,7 +41,7 @@ IMAGE /root/.oldroot/nfs/install/../images/CentOS-76-64-minimal.tar.gz
 
 To specify the rest of available space on the drive, you can easily use "all" at the last partition.
 
-There is more information about the installimage script, [click here](https://wiki.hetzner.de/index.php/Installimage/en).
+There is more information about the [**Installimage script**](https://wiki.hetzner.de/index.php/Installimage/en).
 
 For a box 2*2GB, if the image is not available just check for the next version of CentOS.
 
