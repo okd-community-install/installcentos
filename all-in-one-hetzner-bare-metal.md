@@ -48,21 +48,23 @@ For a box 2*2GB, if the image is not available just check for the next version o
 After the image has installed, first update packages and enable SELinux, as it comes disabled:
 
 ```
-yum -y update
-vi /etc/selinux/config
+$ yum -y update
+$ vi /etc/selinux/config
+
 SELINUX=enforcing
 
 # Restart the server.
-sync; reboot now
+$ sync; reboot now
+
 # Check SELinux status.
-getenforce
+$ getenforce
 -> Enforcing
 ```
 
 Install the following packages:
 
 ```
-yum -y install screen git
+$ yum -y install screen git
 ```
 
 # Install ODK
@@ -77,11 +79,11 @@ Skip step 2.
 and clone with:
 
 ```
-# I recommend use screen to prevent session termination or connection issues once install script executed.
-screen
+# I recommend use screen program to prevent session termination or connection issues once install script executed.
+$ screen
 #Use your Git-Fork or use:
-export GIT_USER=gshipley
-git clone https://github.com/${GIT_USER}/installcentos
+$ export GIT_USER=gshipley
+$ git clone https://github.com/${GIT_USER}/installcentos
 ```
 Then Export the following variables; these will take control over the
 process os installation where relevant:
@@ -90,15 +92,16 @@ process os installation where relevant:
 ### Optional: export SCRIPT_REPO=browse to your **RAW** fork of rep:
 ### export SCRIPT_REPO=https://raw.githubusercontent.com/${GIT_USER}/installcentos/master
 
-export METRICS="False"
-export LOGGING="False"
+$ export METRICS="False"
+$ export LOGGING="False"
+
 ```
 
 3. Execute the installation script
 
 ```
-cd installcentos
-./install-openshift.sh
+$ cd installcentos
+$ ./install-openshift.sh
 ```
 
 # Secure System with Firewall
