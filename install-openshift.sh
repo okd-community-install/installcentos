@@ -266,6 +266,6 @@ chattr +i /etc/resolv.conf
 
 #Add  registry pod IP to /etc/hosts for registry dns resolution 
 registryIP=$(oc get service/docker-registry -n default -o json | grep clusterIP | awk '{split($0,array,":")} END{print array[2]}')
-echo "$registryIP docker-registry.default.svc" | tr -d "\"","," >> resolv.conf
+echo "$registryIP docker-registry.default.svc" | tr -d "\"","," >> /etc/hosts
 
 
