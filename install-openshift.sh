@@ -257,3 +257,15 @@ echo "$ oc login -u ${USERNAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT
 echo "******"
 
 oc login -u ${USERNAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT/
+
+echo "* Fixing the DNS resolution issue"
+#Comment all entries in /etc/resolv.conf and inlcude `nameserver 192.168.1.8`. Make /etc/resolv.conf readonly to avoid overwriting by origin
+sed -i s/^/"#"/g resolv.conf
+echo "nameserver $IP" >> resolv.conf
+chattr +i /etc/resolv.conf
+
+#Add  registry pod IP to /etc/hosts for registry dns resolution 
+registryIP=$(oc get service/docker-registry -n default -o json | grep clusterIP | awk '{split($0,array,":")} END{print array[2]}')
+echo "$registryIP docker-registry.default.svc" | tr -d "\"","," >> resolv.conf
+
+
