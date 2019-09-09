@@ -2,7 +2,18 @@ Install RedHat OKD 3.11 on your own server.  For a local only install, it is sug
 
 This repository is a set of scripts that will allow you easily install the latest version (3.11) of OKD in a single node fashion.  What that means is that all of the services required for OKD to function (master, node, etcd, etc.) will all be installed on a single host.  The script supports a custom hostname which you can provide using the interactive mode.
 
+**If you are wanting to install OCP on RDO (OpenStack)**
+
+Michel Peterson has created a wrapper script in his repo that will do all the heavy lifting for you. Check it out!  
+
+https://github.com/mpeterson/rdo-openshift-tools
+
+
 **Please do use a clean CentOS system, the script installs all necesary tools and packages including Ansible, container runtime, etc.**
+
+> **Warning about Let's Encrypt setup available on this project:**
+> Let's Encrypt only works if the IP is using publicly accessible IP and custom certificates."
+> This feature doesn't work with OpenShift CLI for now.
 
 ## Installation
 
