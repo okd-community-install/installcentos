@@ -1,17 +1,15 @@
 #!/bin/bash
 
-## see: https://youtu.be/aqXSbDZggK4
-
 ## Default variables to use
-export INTERACTIVE=${INTERACTIVE:="true"}
-export PVS=${INTERACTIVE:="true"}
-export DOMAIN=${DOMAIN:="$(curl -s ipinfo.io/ip).nip.io"}
-export USERNAME=${USERNAME:="$(whoami)"}
-export PASSWORD=${PASSWORD:=password}
+export IP=${IP:="$(hostname -I | awk '{print $2}')"}
+export DOMAIN=${DOMAIN:="$IP.nip.io"}
+export USER_NAME=${USER_NAME:="admin"}
+export PASSWORD=${PASSWORD:="password"}
 export VERSION=${VERSION:="3.11"}
-export SCRIPT_REPO=${SCRIPT_REPO:="https://raw.githubusercontent.com/gshipley/installcentos/master"}
-export IP=${IP:="$(ip route get 8.8.8.8 | awk '{print $NF; exit}')"}
+export SCRIPT_REPO=${SCRIPT_REPO:="https://raw.githubusercontent.com/cmcornejocrespo/installcentos/master"}
 export API_PORT=${API_PORT:="8443"}
+export METRICS="False"
+export LOGGING="False"
 export LETSENCRYPT=${LETSENCRYPT:="false"}
 export MAIL=${MAIL:="example@email.com"}
 
@@ -72,7 +70,7 @@ fi
 echo "******"
 echo "* Your domain is $DOMAIN "
 echo "* Your IP is $IP "
-echo "* Your username is $USERNAME "
+echo "* Your username is $USER_NAME "
 echo "* Your password is $PASSWORD "
 echo "* OpenShift version: $VERSION "
 echo "* Enable HTTPS with Let's Encrypt: $LETSENCRYPT "
@@ -99,7 +97,7 @@ yum -y install epel-release
 # Disable the EPEL repository globally so that is not accidentally used during later steps of the installation
 sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
 
-systemctl | grep "NetworkManager.*running" 
+systemctl | grep "NetworkManager.*running"
 if [ $? -eq 1 ]; then
 	systemctl start NetworkManager
 	systemctl enable NetworkManager
@@ -114,27 +112,10 @@ yum -y --enablerepo=epel install ansible.rpm
 [ ! -d openshift-ansible ] && git clone https://github.com/openshift/openshift-ansible.git -b release-${VERSION} --depth=1
 
 cat <<EOD > /etc/hosts
-127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-${IP}		$(hostname) console console.${DOMAIN}  
+${IP}		$(hostname) console console.${DOMAIN}
 EOD
-
-if [ -z $DISK ]; then 
-	echo "Not setting the Docker storage."
-else
-	cp /etc/sysconfig/docker-storage-setup /etc/sysconfig/docker-storage-setup.bk
-
-	echo DEVS=$DISK > /etc/sysconfig/docker-storage-setup
-	echo VG=DOCKER >> /etc/sysconfig/docker-storage-setup
-	echo SETUP_LVM_THIN_POOL=yes >> /etc/sysconfig/docker-storage-setup
-	echo DATA_SIZE="100%FREE" >> /etc/sysconfig/docker-storage-setup
-
-	systemctl stop docker
-
-	rm -rf /var/lib/docker
-	wipefs --all $DISK
-	docker-storage-setup
-fi
 
 systemctl restart docker
 systemctl enable docker
@@ -144,9 +125,6 @@ if [ ! -f ~/.ssh/id_rsa ]; then
 	cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 	ssh -o StrictHostKeyChecking=no root@$IP "pwd" < /dev/null
 fi
-
-export METRICS="True"
-export LOGGING="True"
 
 memory=$(cat /proc/meminfo | grep MemTotal | sed "s/MemTotal:[ ]*\([0-9]*\) kB/\1/")
 
@@ -224,36 +202,15 @@ touch /etc/origin/master/htpasswd
 ansible-playbook -i inventory.ini openshift-ansible/playbooks/prerequisites.yml
 ansible-playbook -i inventory.ini openshift-ansible/playbooks/deploy_cluster.yml
 
-htpasswd -b /etc/origin/master/htpasswd ${USERNAME} ${PASSWORD}
-oc adm policy add-cluster-role-to-user cluster-admin ${USERNAME}
-
-if [ "$PVS" = "true" ]; then
-
-	curl -o vol.yaml $SCRIPT_REPO/vol.yaml
-
-	for i in `seq 1 200`;
-	do
-		DIRNAME="vol$i"
-		mkdir -p /mnt/data/$DIRNAME 
-		chcon -Rt svirt_sandbox_file_t /mnt/data/$DIRNAME
-		chmod 777 /mnt/data/$DIRNAME
-		
-		sed "s/name: vol/name: vol$i/g" vol.yaml > oc_vol.yaml
-		sed -i "s/path: \/mnt\/data\/vol/path: \/mnt\/data\/vol$i/g" oc_vol.yaml
-		oc create -f oc_vol.yaml
-		echo "created volume $i"
-	done
-	rm oc_vol.yaml
-fi
+htpasswd -b /etc/origin/master/htpasswd ${USER_NAME} ${PASSWORD}
+oc adm policy add-cluster-role-to-user cluster-admin ${USER_NAME}
 
 echo "******"
 echo "* Your console is https://console.$DOMAIN:$API_PORT"
-echo "* Your username is $USERNAME "
+echo "* Your username is $USER_NAME "
 echo "* Your password is $PASSWORD "
 echo "*"
 echo "* Login using:"
 echo "*"
-echo "$ oc login -u ${USERNAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT/"
+echo "$ oc login -u ${USER_NAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT/ --insecure-skip-tls-verify"
 echo "******"
-
-oc login -u ${USERNAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT/
