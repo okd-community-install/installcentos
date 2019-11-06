@@ -108,6 +108,9 @@ fi
 # install the packages for Ansible
 yum -y --enablerepo=epel install pyOpenSSL
 
+# if the script is running for the second time, `yum -y update` will bump ansible to the latest version
+yum remove -y ansible
+
 curl -o ansible.rpm https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/ansible-2.6.5-1.el7.ans.noarch.rpm
 yum -y --enablerepo=epel install ansible.rpm
 
@@ -116,7 +119,7 @@ yum -y --enablerepo=epel install ansible.rpm
 cat <<EOD > /etc/hosts
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-${IP}		$(hostname) console console.${DOMAIN}  
+${IP}		$(hostname) console console.${DOMAIN} console-internal.${DOMAIN}
 EOD
 
 if [ -z $DISK ]; then 
