@@ -48,7 +48,16 @@ if [ "$INTERACTIVE" = "true" ]; then
 	if [ "$choice" != "" ] ; then
 		export API_PORT="$choice";
 	fi
-
+	echo "Do you wish to setup this server as a cluster?"
+	echo "Warnings: "
+	echo "  This will not install openshift. Only the requirements needed to run as a cluster."
+	select yn in "Yes" "No"; do
+		case $yn in
+			Yes) export CLUSTER=true; break;;
+			No) export CLUSTER=false; break;;
+			*) echo "Please select Yes or No.";;
+		esac
+	done
 	echo "Do you wish to enable HTTPS with Let's Encrypt?"
 	echo "Warnings: "
 	echo "  Let's Encrypt only works if the IP is using publicly accessible IP and custom certificates."
@@ -100,6 +109,7 @@ echo "* Your username is $USERNAME "
 echo "* Your password is $PASSWORD "
 echo "* OpenShift version: $VERSION "
 echo "* Enable HTTPS with Let's Encrypt: $LETSENCRYPT "
+echo "* Cluster initial install only?: $CLUSTER "
 if [ "$LETSENCRYPT" = true ] ; then
 	echo "* Your email is $MAIL "
 fi
@@ -181,8 +191,11 @@ fi
 if [ "$memory" -lt "16777216" ]; then
 	export LOGGING="False"
 fi
+if [ "$CLUSTER" = false ] ; then
+#curl -o inventory.download $SCRIPT_REPO/inventory.ini
+cp inventory.ini inventory.download
 
-curl -o inventory.download $SCRIPT_REPO/inventory.ini
+
 envsubst < inventory.download > inventory.ini
 
 # add proxy in inventory.ini if proxy variables are set
@@ -308,3 +321,9 @@ echo "$ oc login -u ${USERNAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT
 echo "******"
 
 oc login -u ${USERNAME} -p ${PASSWORD} https://console.$DOMAIN:$API_PORT/
+else
+echo "******"
+echo "* This server can now be added as an openshift cluster"
+echo "* Please update the inventory file on the master server"
+echo "******"
+fi
